@@ -5,22 +5,45 @@
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MainNavigator from './src/navigation/MainNavigator';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 60 * 24,
+      retry: false,
+    },
+  },
+});
+
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+  key : 'REACT_QUERY_OFFLINE_CACHE',
+});
+
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
+  // const isDarkMode = useColorScheme() === 'dark';
   return (
-    // <View style={styles.container}>
-    //   <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-    //   <NewAppScreen templateFileName="App.tsx" />
-    // </View>
-    <GestureHandlerRootView style = {{flex: 1}}>
+    <GestureHandlerRootView style = {styles.container}>
+      <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{persister: asyncStoragePersister}}
+      onSuccess={() => {
+        queryClient.resumePausedMutations().then(() => {
+          queryClient.invalidateQueries();
+        });
+      }}
+      >
       <MainNavigator/>
+      </PersistQueryClientProvider>
     </GestureHandlerRootView>
   );
 }
@@ -32,3 +55,7 @@ const styles = StyleSheet.create({
 });
 
 export default App;
+    // <View style={styles.container}>
+    //   <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+    //   <NewAppScreen templateFileName="App.tsx" />
+    // </View>
