@@ -9,6 +9,7 @@ export function useStockDetails(symbol: string){
         staleTime: 1000*60*60*24,
         retry: false
     });
+    console.log("overview ", overview);
 
     const series = useQuery<TimeSeriesDaily>({
         queryKey: ['series', symbol],

@@ -4,7 +4,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
 } from 'react-native';
 import { Modalize } from 'react-native-modalize';
@@ -12,16 +11,14 @@ import { useWatchlists } from '../../viewModels/useWatchLists';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addStockToLists } from '../../services/watchListServices';
 import { Stock } from '../../screens/exploreScreen/types';
+import { styles } from './styles';
+import { Props } from './types';
 
 export type WatchlistModalRef = {
   open: () => void;
   close: () => void;
 };
 
-type Props = {
-  stock: Stock;
-  onAdded?: () => void;
-};
 
 const WatchlistModal = forwardRef<WatchlistModalRef, Props>(
   ({ stock, onAdded }, ref) => {
@@ -85,27 +82,3 @@ const WatchlistModal = forwardRef<WatchlistModalRef, Props>(
 
 export default WatchlistModal;
 
-const styles = StyleSheet.create({
-  handle: {
-    backgroundColor: '#ccc',
-    width: 60,
-    alignSelf: 'center',
-    marginBottom: 8,
-  },
-  modal: {
-    padding: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  container: { paddingBottom: 16 },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  row: {
-    paddingVertical: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
-  },
-  rowText: { fontSize: 16 },
-  empty: { textAlign: 'center', color: '#666', marginTop: 32 },
-});

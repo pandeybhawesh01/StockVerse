@@ -4,6 +4,7 @@ export type StockStackParamList = {
     Product : {symbol : string};
     WatchlistDetail: {listId: string , name : string};
     Search: undefined; 
+    Watchlist:undefined;
 }
 
 export type WatchlistStackParamList = {
