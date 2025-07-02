@@ -1,117 +1,292 @@
-import { View, Text, ActivityIndicator, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
-import React, { useRef, useState } from 'react'
-import { StockStackParamList } from '../exploreScreen/types'
+// src/screens/StockDetailsScreen.tsx
+
+import React, { useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute } from '@react-navigation/native';
+import { Stock, StockStackParamList } from '../exploreScreen/types';
 import { useStockDetails } from '../../viewModels/useStockDetails';
-import { ScrollView } from 'react-native-gesture-handler';
 import { LineChart } from 'react-native-chart-kit';
-import WatchlistSheet, { BottomTabModalRef } from '../../components/WatchListBottomSheet/WatchListBottomSheet';
-import BottomTabModal from '../../components/WatchListBottomSheet/WatchListBottomSheet';
-// import { series } from '../../constants/dummyData';
+import WatchlistModal, {
+  WatchlistModalRef,
+} from '../../components/WatchListBottomSheet/WatchListBottomSheet';
+import { useNavigation } from '@react-navigation/native';
+// import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 
 type RoutePropDetails = RouteProp<StockStackParamList, 'Product'>;
 
-const StockDetailsScreen = () => {
+export default function StockDetailsScreen() {
   const route = useRoute<RoutePropDetails>();
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const navigation = useNavigation();
   const symbol = route.params.ticker;
-  console.log('tickker is ',symbol);
-  const {overview, series} = useStockDetails(symbol);
-  const modalRef = useRef<BottomTabModalRef>(null);
+  const { overview, series } = useStockDetails(symbol);
+  const modalRef = useRef<WatchlistModalRef>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const openModal = () => {
-    modalRef.current?.open();
-  };
-  // to be seperated graph ka graph mai lagana hai 
-  if(overview.isLoading || series.isLoading){
-    return <ActivityIndicator style= {styles.center} size ="large" />;
+  if (overview.isLoading || series.isLoading) {
+    return (
+      <SafeAreaView style={styles.center}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
   }
-
-  if(overview.isError || series.isError || !overview.data || !series.data){
-    return <Text style={styles.center}>Error Loading details </Text>
-  }
-
-   if (!overview.data || !series.data) {
-    return <Text style={styles.center}>No data available.</Text>;
+  if (overview.isError || series.isError || !overview.data || !series.data) {
+    return (
+      <SafeAreaView style={styles.center}>
+        <Text style={styles.errorText}>Error loading data.</Text>
+      </SafeAreaView>
+    );
   }
 
   const daily = series.data['Time Series (Daily)'];
-  if (!daily || typeof daily !== 'object') {
-    return <Text style={styles.center}>Price history not available.</Text>;
+  if (!daily) {
+    return (
+      <SafeAreaView style={styles.center}>
+        <Text style={styles.errorText}>No price history available.</Text>
+      </SafeAreaView>
+    );
   }
+
+  // Prepare chart for last 7 days
   const dates = Object.keys(daily).sort();
-  const recent = dates.slice(-30);
-  const labels = recent.map(d => d.slice(5));
-  const data = recent.map(d => Number(daily[d]['4. close']));
-  const {Name, Sector, Industry, Description, Currency} = overview.data;
+  const recent = dates.slice(-7);
+  const labels = recent.map((d) => d.slice(5)); // "MM-DD"
+  const prices = recent.map((d) => Number(daily[d]['4. close']));
+
+  // Destructure overview fields
+  const {
+    Name,
+    AssetType,
+    Exchange,
+    Description,
+    Industry,
+    Sector,
+    PERatio,
+    MarketCapitalization,
+    '52WeekLow': _52Low,
+    '52WeekHigh': _52High,
+  } = overview.data;
+
+  // Demo today’s low/high (you could fetch via TIME_SERIES intraday)
+  const todaysLow = Math.min(...prices);
+  const todaysHigh = Math.max(...prices);
+
+  const weekLow = parseFloat(_52Low);
+  const weekHigh = parseFloat(_52High);
+
+  const pctOfRange = (value: number, min: number, max: number) =>
+    max > min ? ((value - min) / (max - min)) * 100 : 0;
+
+  const openModal = () => modalRef.current?.open();
+  const lastPrice = prices[prices.length - 1];
+  const prevPrice = prices[prices.length - 2] ?? lastPrice;
+
+  // compute change
+  const changeAmount = (lastPrice - prevPrice).toFixed(2);
+  const changePercentage = `${(((lastPrice - prevPrice) / prevPrice) * 100).toFixed(2)}%`;
+
+  // (we don't have volume from daily series, so you can leave it blank or pull from overview if you prefer)
+  const stockData: Stock = {
+    ticker: symbol,
+    price: lastPrice.toFixed(2),
+    change_amount: changeAmount,
+    change_percentage: changePercentage,
+    volume: '', // or overview.data.SharesOutstanding if that makes sense
+  };
 
   return (
-    <>
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>{symbol} • {Name}</Text>
-      <Text style={styles.subTitle}>{Sector} •{Industry} </Text>
-
-      <Text style={styles.chartLabel}> Last 30 Days Close Price</Text>
-      <LineChart
-      data={{labels, datasets:[{data}]}}
-      width={Dimensions.get('window').width-32}
-      height={220}
-      chartConfig={{
-        backgroundGradientFrom: '#fff',
-        backgroundGradientTo: '#fff',
-        decimalPlaces: 2,
-        color: () => '#007AFF',
-        labelColor: ()=> '#666'
-      }}
-      bezier
-      style={styles.chart}
-      />
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About {Name}</Text>
-        <Text style={styles.description}>{Description}</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          {/* <ChevronLeftIcon size={24} color={'black'} /> */}
+          <Text>back</Text>
+        </TouchableOpacity>
+        <Text style={styles.screenTitle}> Stock Details</Text>
       </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Key Metrics</Text>
-        <View style={styles.metricsRow}>
-          <View style={styles.metric}>
-            <Text style={styles.metricLabel}>PE Ratio</Text>
-            <Text style={styles.metricValue}>{overview.data.PERatio}</Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* —— Header Row —— */}
+        <View style={styles.headerRow}>
+          <View style={{ flex: 0.7 }}>
+            <Text style={styles.stockName}>{Name}</Text>
+            <Text style={styles.metaText}>
+              {symbol} • {AssetType}
+            </Text>
+            <Text style={styles.metaText}>{Exchange}</Text>
           </View>
-          <View style={styles.metric}>
-            <Text style={styles.metricLabel}>Market Cap</Text>
-            <Text style={styles.metricValue}>{overview.data.MarketCapitalization}</Text>
+          <TouchableOpacity onPress={openModal} style={styles.bookmarkBtn}>
+            <Text style={styles.bookmarkText}>+ Watchlist</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* —— Line Chart —— */}
+        <LineChart
+          data={{ labels, datasets: [{ data: prices }] }}
+          width={Dimensions.get('window').width - 32}
+          height={200}
+          chartConfig={{
+            backgroundGradientFrom: '#fff',
+            backgroundGradientTo: '#fff',
+            decimalPlaces: 2,
+            color: () => '#007AFF',
+            labelColor: () => '#666',
+          }}
+          style={styles.chart}
+          bezier
+        />
+
+        {/* —— About Card —— */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>About {Name.toUpperCase()}</Text>
+          <Text style={styles.description}>
+            {isExpanded
+              ? Description + ' '
+              : Description.split(' ').slice(0, 40).join(' ') + '... '}
+            <Text
+              style={styles.readMore}
+              onPress={() => setIsExpanded((p) => !p)}
+            >
+              {isExpanded ? 'Show less' : 'Read more'}
+            </Text>
+          </Text>
+          <View style={styles.tagRow}>
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>Industry: {Industry}</Text>
+            </View>
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>Sector: {Sector}</Text>
+            </View>
           </View>
         </View>
-        {/* add more metric rows as needed */}
-      </View>
-       <TouchableOpacity onPress={openModal}>
-      {/* <BookmarkIcon size={24} color="black" /> */}
-      <View style={styles.saveBtn}>
-        <Text style={styles.saveText}>add to watch list </Text>
-      </View>
-      </TouchableOpacity>
-    </ScrollView>
-    <BottomTabModal ref={modalRef}/>
-    </>
-  )
+
+        {/* —— Performance Card —— */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Performance</Text>
+
+          {/* Today's Range */}
+          <Text style={styles.subLabel}>Today's Range</Text>
+          <View style={styles.rowLabels}>
+            <Text style={styles.rangeValue}>{todaysLow.toFixed(2)}</Text>
+            <Text style={styles.rangeValue}>{todaysHigh.toFixed(2)}</Text>
+          </View>
+          <View style={styles.barTrack}>
+            <View
+              style={[
+                styles.marker,
+                {
+                  left: `${pctOfRange(
+                    (todaysLow + todaysHigh) / 2,
+                    todaysLow,
+                    todaysHigh
+                  )}%`,
+                },
+              ]}
+            />
+          </View>
+
+          {/* 52‑Week Range */}
+          <Text style={[styles.subLabel, { marginTop: 16 }]}>
+            52-Week Range
+          </Text>
+          <View style={styles.rowLabels}>
+            <Text style={styles.rangeValue}>{weekLow.toFixed(2)}</Text>
+            <Text style={styles.rangeValue}>{weekHigh.toFixed(2)}</Text>
+          </View>
+          <View style={styles.barTrack}>
+            <View
+              style={[
+                styles.marker,
+                {
+                  left: `${pctOfRange(_52High ? parseFloat(_52High) : 0, weekLow, weekHigh)}%`,
+                  borderBottomColor: '#007AFF',
+                },
+              ]}
+            />
+          </View>
+        </View>
+
+        {/* —— Key Metrics Card —— */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Key Metrics</Text>
+          <View style={styles.metricsRow}>
+            <View style={styles.metricBlock}>
+              <Text style={styles.metricLabel}>PE Ratio</Text>
+              <Text style={styles.metricValue}>{PERatio}</Text>
+            </View>
+            <View style={styles.metricBlock}>
+              <Text style={styles.metricLabel}>Market Cap</Text>
+              <Text style={styles.metricValue}>{MarketCapitalization}</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* —— Watchlist Modal —— */}
+      <WatchlistModal ref={modalRef} stock={stockData} />
+    </SafeAreaView>
+  );
 }
 
-export default StockDetailsScreen
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  center:    { flex: 1, justifyContent:'center', alignItems:'center' },
-  title:     { fontSize: 24, fontWeight: '700', marginBottom: 4 },
-  subTitle:  { fontSize: 14, color: '#666', marginBottom: 16 },
-  chartLabel:{ fontSize: 16, fontWeight:'600', marginBottom: 8 },
-  chart:     { borderRadius: 12, marginBottom: 16 },
-  section:   { marginBottom: 24 },
-  sectionTitle:   { fontSize: 18, fontWeight: '600', marginBottom: 8 },
-  description:    { fontSize: 14, color: '#333', lineHeight: 20 },
-  metricsRow:     { flexDirection: 'row', justifyContent: 'space-between' },
-  metric:         { width: '48%' },
-  metricLabel:    { fontSize: 12, color: '#666' },
-  metricValue:    { fontSize: 16, fontWeight: '600', color: '#000' },
-  saveText:  { fontSize: 14, color: '#666', marginBottom: 16 },
-  saveBtn: {width: '30%' , height: '20%' , borderRadius:8, backgroundColor:'green'}
+  topBar: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  screenTitle: { fontSize: 18, fontWeight: '600', marginLeft: 12 },
+  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { color: 'red', marginTop: 40, textAlign: 'center' },
+
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  stockName: { fontSize: 20, fontWeight: '700' },
+  metaText: { fontSize: 12, color: '#666' },
+
+  bookmarkBtn: { backgroundColor: '#007AFF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
+  bookmarkText: { color: '#fff', fontWeight: '600', fontSize: 12 },
+
+  chart: { borderRadius: 8, marginBottom: 16 },
+
+  card: {
+    backgroundColor: '#f9f9f9',
+    padding: 16,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 16,
+  },
+  cardTitle: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
+
+  description: { fontSize: 12, color: '#333', lineHeight: 18, marginBottom: 8 },
+  readMore: { color: '#007AFF', fontSize: 12 },
+
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  tag: { backgroundColor: '#f0e6ff', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 4, marginRight: 8, marginBottom: 8 },
+  tagText: { fontSize: 10, color: '#6a1b9a' },
+
+  subLabel: { fontSize: 12, color: '#444', marginBottom: 4 },
+  rowLabels: { flexDirection: 'row', justifyContent: 'space-between' },
+
+  rangeValue: { fontSize: 12, fontWeight: '600' },
+  barTrack: { height: 6, backgroundColor: '#eee', borderRadius: 3, position: 'relative', marginVertical: 4 },
+  marker: {
+    position: 'absolute',
+    top: -4,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderBottomWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#444',
+  },
+
+  metricsRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  metricBlock: { width: '48%' },
+  metricLabel: { fontSize: 12, color: '#666' },
+  metricValue: { fontSize: 14, fontWeight: '600', marginTop: 4 },
 });

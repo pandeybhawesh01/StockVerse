@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Watchlists, WatchlistItems } from "../screens/watchListScreen/types";
+import { Stock } from "../screens/exploreScreen/types";
 
 const   KEY_LISTS = 'WATCHLISTS';
 const   KEY_ITEMS = 'WATCHLISTS_ITEMS';
@@ -25,17 +26,31 @@ export async function saveItemsMap(map: WatchlistItems): Promise<void> {
     await AsyncStorage.setItem(KEY_ITEMS, JSON.stringify(map));
 }
 
+// export async function addStockToLists(
+//     ticker: string,
+//     listTds: string[]
+// ): Promise<void> {
+//     const map = await getItemsMap();
+//     for(const id of listTds){
+//         const arr = map[id] || [];
+//         if(!arr.includes(ticker)) arr.push(ticker);
+//         map[id] = arr;
+//     }
+//     await saveItemsMap(map);
+// }
 export async function addStockToLists(
-    ticker: string,
-    listTds: string[]
-): Promise<void> {
-    const map = await getItemsMap();
-    for(const id of listTds){
-        const arr = map[id] || [];
-        if(!arr.includes(ticker)) arr.push(ticker);
-        map[id] = arr;
+  stock: Stock,
+  listIds: string[]
+): Promise<void>{
+  const map = await getItemsMap();
+  for(const id of listIds){
+    const arr = map[id] || [] as Stock[];
+    if(!arr.find((s) => s.ticker === stock.ticker)){
+      arr.push(stock);
     }
-    await saveItemsMap(map);
+    map[id] = arr;
+  }
+  await saveItemsMap(map);
 }
 
 export async function removeStockFromList(
@@ -44,12 +59,12 @@ export async function removeStockFromList(
 ): Promise<void> {
   const map = await getItemsMap();
   if (map[listId]) {
-    map[listId] = map[listId].filter((t) => t !== ticker);
+    map[listId] = (map[listId] as Stock[]).filter((s) => s.ticker !== ticker);
     await saveItemsMap(map);
   }
 }
 
-export async function getStocksInList(listId: string): Promise<string[]> {
+export async function getStocksInList(listId: string): Promise<Stock[]> {
   const map = await getItemsMap();
   return map[listId] || [];
 }

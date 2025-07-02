@@ -10,8 +10,8 @@ import {
 import { Modalize } from 'react-native-modalize';
 import { useWatchlists } from '../../viewModels/useWatchLists';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-// import { addStockToLists } from '../../services/watchlistStorage';
 import { addStockToLists } from '../../services/watchListServices';
+import { Stock } from '../../screens/exploreScreen/types';
 
 export type WatchlistModalRef = {
   open: () => void;
@@ -19,18 +19,18 @@ export type WatchlistModalRef = {
 };
 
 type Props = {
-  ticker: string;
+  stock: Stock;
   onAdded?: () => void;
 };
 
 const WatchlistModal = forwardRef<WatchlistModalRef, Props>(
-  ({ ticker, onAdded }, ref) => {
+  ({ stock, onAdded }, ref) => {
     const { listsQ } = useWatchlists();
     const qc = useQueryClient();
 
     // mutation to add this ticker to a single list
     const addM = useMutation<void, Error, string>({
-      mutationFn: (listId) => addStockToLists(ticker, [listId]),
+      mutationFn: (listId) => addStockToLists(stock, [listId]),
       onSuccess: (_, listId) => {
         // refresh items in that list
         qc.invalidateQueries({ queryKey: ['watchlistItems', listId] });
@@ -57,7 +57,7 @@ const WatchlistModal = forwardRef<WatchlistModalRef, Props>(
         adjustToContentHeight={false}
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Add {ticker} to:</Text>
+          <Text style={styles.title}>Add {stock.ticker} to:</Text>
 
           {listsQ.isLoading && <ActivityIndicator />}
 
@@ -109,69 +109,3 @@ const styles = StyleSheet.create({
   rowText: { fontSize: 16 },
   empty: { textAlign: 'center', color: '#666', marginTop: 32 },
 });
-
-// import React, { useMemo, useRef, useEffect } from 'react';
-// import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-// import { BottomSheetModal } from '@gorhom/bottom-sheet';
-// import { useWatchlists } from '../../viewModels/useWatchLists';
-// import { useMutation, useQueryClient } from '@tanstack/react-query';
-// import { addStockToLists } from '../../services/watchListServices';
-
-// type Props = {
-//   visible: boolean;
-//   onClose: () => void;
-//   ticker: string;
-// };
-// export default function WatchlistSheet({ visible, onClose, ticker }: Props) {
-//   const { listsQ } = useWatchlists();
-//   const qc = useQueryClient();
-//   const sheetRef = useRef<BottomSheetModal>(null);
-//   const snapPoints = useMemo(() => ['50%'], []);
-
-//   // Imperatively present/dismiss
-//   useEffect(() => {
-//     if (visible) {
-//       sheetRef.current?.present();
-//     } else {
-//       sheetRef.current?.close();
-//     }
-//   }, [visible]);
-
-//   const addM = useMutation<void, Error, string[]>({
-//     mutationFn: (listIds) => addStockToLists(ticker, listIds),
-//     onSuccess: () => {
-//       qc.invalidateQueries({ queryKey: ['watchlistItems'] });
-//       onClose();
-//     },
-//   });
-
-//   return (
-//     <BottomSheetModal
-//       ref={sheetRef}
-//       index={0}
-//       snapPoints={snapPoints}
-//       onDismiss={onClose}
-//     >
-//       <View style={styles.content}>
-//         <Text style={styles.header}>Add {ticker} to:</Text>
-//         {listsQ.data?.map((wl) => (
-//           <TouchableOpacity
-//             key={wl.id}
-//             style={styles.row}
-//             onPress={() => addM.mutate([wl.id])}
-//           >
-//             <Text style={styles.name}>{wl.name}</Text>
-//           </TouchableOpacity>
-//         ))}
-//       </View>
-//     </BottomSheetModal>
-//   );
-// }
-
-
-// const styles = StyleSheet.create({
-//     content: { flex: 1, padding: 16 },
-//     header: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-//     row: { paddingVertical: 8, borderBottomWidth: 1, borderColor: '#eee' },
-//     name: { fontSize: 16 },
-// });

@@ -7,6 +7,7 @@ import {
   removeStockFromList,
 } from '../services/watchListServices';
 import { Watchlist } from '../screens/watchListScreen/types';
+import { Stock } from '../screens/exploreScreen/types';
 
 export function useWatchlists() {
   const qc = useQueryClient();
@@ -31,13 +32,13 @@ export function useWatchlists() {
 export function useStocksInList(listId: string) {
   const qc = useQueryClient();
 
-  const itemsQ = useQuery<string[], Error>({
+  const itemsQ = useQuery<Stock[], Error>({
     queryKey: ['watchlistItems', listId],
     queryFn: () => getStocksInList(listId),
   });
 
-  const addStockM = useMutation<void, Error, string>({
-    mutationFn: (ticker) => addStockToLists(ticker, [listId]),
+  const addStockM = useMutation<void, Error, Stock>({
+    mutationFn: (stock) => addStockToLists(stock, [listId]),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['watchlistItems', listId] });
     },

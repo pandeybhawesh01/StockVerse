@@ -13,6 +13,7 @@ type Props = {
 export default function StockCard({ stock }: Props) {
   const navigation = useNavigation<ProductNavProp>();
   const isPositive = parseFloat(stock.change_amount) >= 0;
+  // console.log('ticker is ',stock.ticker);
 
   return (
     <TouchableOpacity

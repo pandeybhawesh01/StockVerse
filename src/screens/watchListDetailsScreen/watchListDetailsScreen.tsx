@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { Stock, StockStackParamList } from '../../navigation/types';
+import { StockStackParamList } from '../../navigation/types';
 import { useStocksInList } from '../../viewModels/useWatchLists';
 import StockCard from '../../components/stockCard/StockCard';
+import { Stock } from '../exploreScreen/types';
 
 type RoutePropDetail = RouteProp<StockStackParamList, 'WatchlistDetail'>;
 
@@ -14,25 +15,26 @@ export default function WatchlistDetailScreen() {
 
   if (itemsQ.isLoading) return <Text>Loading…</Text>;
 
-  const tickers = itemsQ.data || [];
-  console.log(tickers);
+  // const tickers = itemsQ.data || [];
+  const stocks : Stock[] = itemsQ.data || [];
+  // console.log('Stocks',stocks);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{name}</Text>
-      {tickers.length === 0 ? (
+      {stocks.length === 0 ? (
         <Text style={styles.empty}>No stocks yet.</Text>
       ) : (
         <FlatList
-          data={tickers}
+          data={stocks}
           numColumns={2}
           columnWrapperStyle={styles.row}
-          keyExtractor={(t) => t}
+          keyExtractor={(s) => s.ticker}
           renderItem={({ item }) => (
             <View>
-              <StockCard stock={{ ticker: item, price: '', change_amount: '', change_percentage: '', volume: '' }} />
+              <StockCard stock={item} />
               <TouchableOpacity
-                onPress={() => removeStockM.mutate(item)}
+                onPress={() => removeStockM.mutate(item.ticker)}
                 style={styles.removeBtn}
               >
                 <Text style={styles.removeText}>Remove</Text>
