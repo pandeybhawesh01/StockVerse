@@ -4,6 +4,7 @@ import { StockStackParamList } from './types';
 import ViewAllScreen from '../screens/viewAllScreen/ViewAllScreen';
 import StockDetailsScreen from '../screens/StockDetailsScreen/StockDetailsScreen';
 import ExploreScreen from '../screens/exploreScreen/ExploreScreen';
+import SearchPage from '../screens/SearchScreen/SearchScreen';
 
 const Stack = createStackNavigator<StockStackParamList>();
 
@@ -13,6 +14,7 @@ export default function ExploreStackNavigator() {
       <Stack.Screen name="Explore" component={ExploreScreen} options={{ title: 'Explore' }} />
       <Stack.Screen name="ViewAll" component={ViewAllScreen} options={{ title: 'All Items' }} />
       <Stack.Screen name="Product" component={StockDetailsScreen} options={({ route }) => ({ title: route.params.symbol })} />
+      <Stack.Screen name="Search" component={SearchPage} options={{ title: 'Search Stocks' }}/>
     </Stack.Navigator>
   );
 }

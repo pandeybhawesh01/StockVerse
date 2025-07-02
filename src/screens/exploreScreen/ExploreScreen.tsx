@@ -17,6 +17,8 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { StockStackParamList } from '../../navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from './styles';
+import { TextInput } from 'react-native';
 
 type ExploreNavProp = StackNavigationProp<StockStackParamList, 'Explore'>;
 
@@ -24,7 +26,6 @@ export default function ExploreScreen() {
   const navigation = useNavigation<ExploreNavProp>();
   const { data, isLoading, isError, refetch } = useExploreData();
 
-  // 1) Show loading spinner
   if (isLoading) {
     return (
       <View style={styles.center}>
@@ -33,7 +34,6 @@ export default function ExploreScreen() {
     );
   }
 
-  // 2) Show error + retry button
   if (isError || !data) {
     return (
       <View style={styles.center}>
@@ -45,12 +45,10 @@ export default function ExploreScreen() {
     );
   }
 
-  // 3) Destructure the three lists
   const top_gainers: Stock[] = data.top_gainers;
   const top_losers: Stock[] = data.top_losers;
   const most_actively_traded: Stock[] = data.most_actively_traded;
 
-  // 4) Reuse your renderSection helper
   const renderSection = (
     title: string,
     items: Stock[],
@@ -78,6 +76,15 @@ export default function ExploreScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+       <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('Search')}
+        style={styles.searchBar}
+      >
+        <Text style={styles.searchPlaceholder}>
+          🔍 Search for Stocks, ETFs & more
+        </Text>
+      </TouchableOpacity>
       <ScrollView>
         {renderSection('Top Gainers', top_gainers, 'gainers')}
         {renderSection('Top Losers', top_losers, 'losers')}
@@ -90,27 +97,3 @@ export default function ExploreScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-  },
-  errorText: { fontSize: 16, color: '#E53935', marginBottom: 8 },
-  retryText: { color: '#007AFF', fontSize: 14 },
-  section: { marginTop: 16, paddingHorizontal: 16 },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  title: { fontSize: 20, fontWeight: '600', color: '#000' },
-  viewAll: { fontSize: 14, color: '#007AFF' },
-  row: {
-    justifyContent: 'space-around',
-    marginBottom: 12,
-  },
-});
