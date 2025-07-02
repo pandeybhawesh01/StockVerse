@@ -4,7 +4,7 @@
  *
  * @format
  */
-
+import 'react-native-reanimated';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +34,7 @@ function App() {
   // const isDarkMode = useColorScheme() === 'dark';
   return (
     <GestureHandlerRootView style = {styles.container}>
+      <BottomSheetModalProvider>
       <PersistQueryClientProvider
       client={queryClient}
       persistOptions={{persister: asyncStoragePersister}}
@@ -44,6 +46,7 @@ function App() {
       >
       <MainNavigator/>
       </PersistQueryClientProvider>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }

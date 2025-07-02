@@ -1,19 +1,27 @@
-import { View, Text, ActivityIndicator, StyleSheet, Dimensions } from 'react-native'
-import React from 'react'
+import { View, Text, ActivityIndicator, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
+import React, { useRef, useState } from 'react'
 import { StockStackParamList } from '../exploreScreen/types'
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useStockDetails } from '../../viewModels/useStockDetails';
 import { ScrollView } from 'react-native-gesture-handler';
 import { LineChart } from 'react-native-chart-kit';
+import WatchlistSheet, { BottomTabModalRef } from '../../components/WatchListBottomSheet/WatchListBottomSheet';
+import BottomTabModal from '../../components/WatchListBottomSheet/WatchListBottomSheet';
 // import { series } from '../../constants/dummyData';
 
 type RoutePropDetails = RouteProp<StockStackParamList, 'Product'>;
 
 const StockDetailsScreen = () => {
   const route = useRoute<RoutePropDetails>();
+  const [sheetOpen, setSheetOpen] = useState(false);
   const symbol = route.params.ticker;
   console.log('tickker is ',symbol);
   const {overview, series} = useStockDetails(symbol);
+  const modalRef = useRef<BottomTabModalRef>(null);
+
+  const openModal = () => {
+    modalRef.current?.open();
+  };
   // to be seperated graph ka graph mai lagana hai 
   if(overview.isLoading || series.isLoading){
     return <ActivityIndicator style= {styles.center} size ="large" />;
@@ -38,6 +46,7 @@ const StockDetailsScreen = () => {
   const {Name, Sector, Industry, Description, Currency} = overview.data;
 
   return (
+    <>
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{symbol} • {Name}</Text>
       <Text style={styles.subTitle}>{Sector} •{Industry} </Text>
@@ -76,7 +85,15 @@ const StockDetailsScreen = () => {
         </View>
         {/* add more metric rows as needed */}
       </View>
+       <TouchableOpacity onPress={openModal}>
+      {/* <BookmarkIcon size={24} color="black" /> */}
+      <View style={styles.saveBtn}>
+        <Text style={styles.saveText}>add to watch list </Text>
+      </View>
+      </TouchableOpacity>
     </ScrollView>
+    <BottomTabModal ref={modalRef}/>
+    </>
   )
 }
 
@@ -95,4 +112,6 @@ const styles = StyleSheet.create({
   metric:         { width: '48%' },
   metricLabel:    { fontSize: 12, color: '#666' },
   metricValue:    { fontSize: 16, fontWeight: '600', color: '#000' },
+  saveText:  { fontSize: 14, color: '#666', marginBottom: 16 },
+  saveBtn: {width: '30%' , height: '20%' , borderRadius:8, backgroundColor:'green'}
 });
