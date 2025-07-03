@@ -12,6 +12,8 @@ export const styles = StyleSheet.create({
     borderRadius: moderateScale(8),
     padding: moderateScale(16),
     elevation: moderateScale(1),
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
   cardTitle: { fontSize: moderateScale(16), fontWeight: '600', color: colors.black },
   cardSubtitle: { fontSize: moderateScale(12), color: colors.darkGray, marginTop: 4 },
@@ -51,4 +53,21 @@ export const styles = StyleSheet.create({
     fontWeight: '800',
     marginLeft: 12,
   },
+  emptyTitle: {
+  fontSize: 18,
+  fontWeight: '600',
+  marginBottom: 8,
+  textAlign: 'center',
+},
+emptySubtitle: {
+  fontSize: 14,
+  color: '#666',
+  marginBottom: 24,
+  textAlign: 'center',
+},
+addFirstBtn: {
+  alignSelf: 'center',
+  marginTop: 16,
+},
+
 });

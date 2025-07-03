@@ -12,13 +12,14 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PlusCircleIcon } from 'react-native-heroicons/outline';
+import { ChevronRightIcon, PlusCircleIcon } from 'react-native-heroicons/outline';
 import { useWatchlists } from '../../viewModels/useWatchLists';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import { StockStackParamList } from '../../navigation/types';
 import { styles } from './styles';
 import ArrowLeftIcon from 'react-native-heroicons/outline/ArrowLeftIcon';
+import colors from '../../constants/colors';
 
 type NavProp = StackNavigationProp<StockStackParamList, 'Watchlist'>;
 
@@ -34,13 +35,21 @@ export default function WatchlistsScreen() {
       </SafeAreaView>
     );
   }
+    if (listsQ.data && listsQ.data.length === 0) {
+    return (
+      <SafeAreaView style={styles.center}>
+        <Text style={styles.emptyTitle}>You haven't created any watchlists yet.</Text>
+        <Text style={styles.emptySubtitle}>Add a WatchList from bellow to get started.</Text>
+      </SafeAreaView>
+    );
+  }
+  console.log('data is ',listsQ.data);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeftIcon size={24} color="#000" />
-          {/* <Text> === </Text> */}
+          <ArrowLeftIcon size={24} color= {colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>My Watchlists</Text>
       </View>
@@ -59,16 +68,17 @@ export default function WatchlistsScreen() {
             }
           >
             <Text style={styles.cardTitle}>{item.name}</Text>
-            <Text style={styles.cardSubtitle}>
-              {item.count ?? '0'} stocks
-            </Text>
+            <ChevronRightIcon size={20} color={colors.gray} />
+            {/* <Text style={styles.cardSubtitle}>
+              {item?.length ?? '0'} stocks
+            </Text> */}
           </TouchableOpacity>
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
 
       <KeyboardAvoidingView
-        behavior={Platform.select({ ios: 'padding', android: undefined })}
+        // behavior={Platform.select({ ios: 'padding', android: undefined })}
       >
         <View style={styles.newRow}>
           <TextInput
@@ -87,8 +97,7 @@ export default function WatchlistsScreen() {
               }
             }}
           >
-            {/* <Text> + </Text> */}
-            <PlusCircleIcon size={32} color="#007AFF" />
+            <PlusCircleIcon size={32} color={colors.bluePrimary} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

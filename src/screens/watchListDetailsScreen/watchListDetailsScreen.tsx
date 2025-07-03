@@ -15,6 +15,7 @@ import type { RouteProp } from '@react-navigation/native';
 import { StockStackParamList } from '../../navigation/types';
 import { useStocksInList } from '../../viewModels/useWatchLists';
 import StockCard from '../../components/stockCard/StockCard';
+import colors from '../../constants/colors';
 
 type RoutePropDetail = RouteProp<StockStackParamList, 'WatchlistDetail'>;
 
@@ -38,7 +39,7 @@ export default function WatchlistDetailScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeftIcon size={24} color="#000" />
+          <ArrowLeftIcon size={24} color={colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{name}</Text>
       </View>
@@ -82,8 +83,8 @@ const styles = StyleSheet.create({
     borderColor: '#eee',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '800',
     marginLeft: 12,
   },
   list: { padding: 16 },
@@ -91,11 +92,12 @@ const styles = StyleSheet.create({
   itemWrapper: { width: '48%' },
   removeBtn: {
     marginTop: 6,
-    backgroundColor: '#E53935',
+    backgroundColor: colors.minusRed,
     paddingVertical: 4,
     borderRadius: 4,
+    width: '90%',
   },
-  removeText: { color: '#fff', fontSize: 12, textAlign: 'center' },
+  removeText: { color: colors.white, fontSize: 12, textAlign: 'center' },
   empty: { color: '#666', fontSize: 14 },
 });
 

@@ -140,6 +140,8 @@ export default function StockDetailsScreen() {
           }}
           style={styles.chart}
           bezier
+          withVerticalLines={false}
+          withHorizontalLines={false}
         />
 
         {/* —— About Card —— */}

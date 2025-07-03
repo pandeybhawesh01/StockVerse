@@ -26,18 +26,6 @@ export async function saveItemsMap(map: WatchlistItems): Promise<void> {
     await AsyncStorage.setItem(KEY_ITEMS, JSON.stringify(map));
 }
 
-// export async function addStockToLists(
-//     ticker: string,
-//     listTds: string[]
-// ): Promise<void> {
-//     const map = await getItemsMap();
-//     for(const id of listTds){
-//         const arr = map[id] || [];
-//         if(!arr.includes(ticker)) arr.push(ticker);
-//         map[id] = arr;
-//     }
-//     await saveItemsMap(map);
-// }
 export async function addStockToLists(
   stock: Stock,
   listIds: string[]
