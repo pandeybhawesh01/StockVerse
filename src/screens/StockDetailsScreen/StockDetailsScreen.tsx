@@ -56,13 +56,11 @@ export default function StockDetailsScreen() {
     );
   }
 
-  // Prepare chart for last 7 days
   const dates = Object.keys(daily).sort();
   const recent = dates.slice(-7);
   const labels = recent.map((d) => d.slice(5)); // "MM-DD"
   const prices = recent.map((d) => Number(daily[d]['4. close']));
 
-  // Destructure overview fields
   const {
     Name,
     AssetType,
@@ -76,7 +74,6 @@ export default function StockDetailsScreen() {
     '52WeekHigh': _52High,
   } = overview.data;
 
-  // Demo today’s low/high (you could fetch via TIME_SERIES intraday)
   const todaysLow = Math.min(...prices);
   const todaysHigh = Math.max(...prices);
 
@@ -90,17 +87,15 @@ export default function StockDetailsScreen() {
   const lastPrice = prices[prices.length - 1];
   const prevPrice = prices[prices.length - 2] ?? lastPrice;
 
-  // compute change
   const changeAmount = (lastPrice - prevPrice).toFixed(2);
   const changePercentage = `${(((lastPrice - prevPrice) / prevPrice) * 100).toFixed(2)}%`;
 
-  // (we don't have volume from daily series, so you can leave it blank or pull from overview if you prefer)
   const stockData: Stock = {
     ticker: symbol,
     price: lastPrice.toFixed(2),
     change_amount: changeAmount,
     change_percentage: changePercentage,
-    volume: '', // or overview.data.SharesOutstanding if that makes sense
+    volume: '',
   };
 
   return (
@@ -112,7 +107,6 @@ export default function StockDetailsScreen() {
         <Text style={styles.headerTitle}>Stock Detail</Text>
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* —— Header Row —— */}
         <View style={styles.headerRow}>
           <View style={{ flex: 0.7 }}>
             <Text style={styles.stockName}>{Name}</Text>
@@ -126,7 +120,6 @@ export default function StockDetailsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* —— Line Chart —— */}
         <LineChart
           data={{ labels, datasets: [{ data: prices }] }}
           width={Dimensions.get('window').width - 32}
@@ -144,7 +137,6 @@ export default function StockDetailsScreen() {
           withHorizontalLines={false}
         />
 
-        {/* —— About Card —— */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>About {Name?.toUpperCase()}</Text>
           <Text style={styles.description}>
@@ -168,11 +160,9 @@ export default function StockDetailsScreen() {
           </View>
         </View>
 
-        {/* —— Performance Card —— */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Performance</Text>
 
-          {/* Today's Range */}
           <Text style={styles.subLabel}>Today's Range</Text>
           <View style={styles.rowLabels}>
             <Text style={styles.rangeValue}>{todaysLow.toFixed(2)}</Text>
@@ -193,7 +183,6 @@ export default function StockDetailsScreen() {
             />
           </View>
 
-          {/* 52‑Week Range */}
           <Text style={[styles.subLabel, { marginTop: 16 }]}>
             52-Week Range
           </Text>
@@ -214,7 +203,6 @@ export default function StockDetailsScreen() {
           </View>
         </View>
 
-        {/* —— Key Metrics Card —— */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Key Metrics</Text>
           <View style={styles.metricsRow}>
@@ -230,7 +218,6 @@ export default function StockDetailsScreen() {
         </View>
       </ScrollView>
 
-      {/* —— Watchlist Modal —— */}
       <WatchlistModal ref={modalRef} stock={stockData} />
     </SafeAreaView>
   );

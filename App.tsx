@@ -1,9 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
 import 'react-native-reanimated';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import React from 'react';
@@ -31,7 +25,6 @@ const asyncStoragePersister = createAsyncStoragePersister({
 
 
 function App() {
-  // const isDarkMode = useColorScheme() === 'dark';
   return (
     <GestureHandlerRootView style = {styles.container}>
       <BottomSheetModalProvider>
@@ -58,7 +51,3 @@ const styles = StyleSheet.create({
 });
 
 export default App;
-    // <View style={styles.container}>
-    //   <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-    //   <NewAppScreen templateFileName="App.tsx" />
-    // </View>

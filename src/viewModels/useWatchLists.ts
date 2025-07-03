@@ -16,7 +16,6 @@ export function useWatchlists() {
     queryKey: ['watchlists'],
     queryFn: getWatchlists,
     staleTime: 0,
-    // cacheTime: 1000 * 60 * 60 * 24,
   });
 
   const createListM = useMutation<void, Error, string>({
