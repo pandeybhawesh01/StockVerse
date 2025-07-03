@@ -1,23 +1,25 @@
 import { StyleSheet } from "react-native";
+import { moderateScale, horizontalScale, verticalScale } from "../../utils/metrices";
+import colors from "../../constants/colors";
 
 export const styles = StyleSheet.create({
   card: {
-    width: 150,
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    marginRight: 12,
-    shadowColor: '#000',
+    width: horizontalScale(150),
+    padding: moderateScale(12),
+    borderRadius: moderateScale(12),
+    backgroundColor: colors.white,
+    marginRight: horizontalScale(12),
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginVertical: 4
+    shadowRadius: moderateScale(4),
+    elevation: moderateScale(3),
+    marginVertical: moderateScale(4)
   },
-  ticker: { fontSize: 16, fontWeight: '600' },
-  price: { fontSize: 14, marginVertical: 4 },
-  change: { fontSize: 12 },
-  plus: { color: '#4CAF50' },
-  minus: { color: '#E53935' },
-  volume: { fontSize: 10, color: '#666', marginTop: 4 },
+  ticker: { fontSize: moderateScale(16), fontWeight: '600' },
+  price: { fontSize: moderateScale(14), marginVertical: verticalScale(4) },
+  change: { fontSize: moderateScale(12) },
+  plus: { color: colors.addGreen},
+  minus: { color: colors.minusRed },
+  volume: { fontSize: moderateScale(10), color: '#666', marginTop: horizontalScale(4) },
 });

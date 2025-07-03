@@ -1,37 +1,40 @@
 import { StyleSheet } from "react-native";
+import { moderateScale, horizontalScale, verticalScale } from "../../utils/metrices";
+import colors from "../../constants/colors";
+
 
 export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.white },
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    padding: moderateScale(16),
   },
-  errorText: { fontSize: 16, color: '#E53935', marginBottom: 8 },
-  retryText: { color: '#007AFF', fontSize: 14 },
-  section: { marginTop: 16, paddingHorizontal: 16 },
+  errorText: { fontSize: moderateScale(16), color: colors.minusRed, marginBottom: verticalScale(8) },
+  retryText: { color: colors.bluePrimary, fontSize: moderateScale(14) },
+  section: { marginTop: verticalScale(16), paddingHorizontal: horizontalScale(16) },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: verticalScale(12),
   },
-  title: { fontSize: 20, fontWeight: '600', color: '#000' },
-  viewAll: { fontSize: 14, color: '#007AFF' },
+  title: { fontSize: moderateScale(20), fontWeight: '600', color: colors.black },
+  viewAll: { fontSize: moderateScale(14), color: colors.bluePrimary },
   row: {
     justifyContent: 'space-around',
-    marginBottom: 12,
+    marginBottom: verticalScale(12),
   },
   searchBar: {
-    height: 48,
-    margin: 16,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: '#F5F5F5',
+    height: verticalScale(48),
+    margin: moderateScale(16),
+    paddingHorizontal: horizontalScale(16),
+    borderRadius: moderateScale(8),
+    backgroundColor: colors.lightGray,
     justifyContent: 'center',
   },
   searchPlaceholder: {
-    color: '#666',
-    fontSize: 16,
+    color: colors.darkGray,
+    fontSize: moderateScale(16),
   },
 });

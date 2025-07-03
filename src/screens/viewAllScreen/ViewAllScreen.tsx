@@ -15,6 +15,10 @@ import { useExploreData } from '../../viewModels/useExploreData';
 import { Stock, StockSectionKey } from '../exploreScreen/types';
 import { StockStackParamList } from '../../navigation/types';
 import { styles } from './styles';
+import colors from '../../constants/colors';
+import { useNavigation } from '@react-navigation/native';
+import ArrowLeftIcon from 'react-native-heroicons/outline/ArrowLeftIcon';
+
 
 type ViewAllRouteProp = RouteProp<StockStackParamList, 'ViewAll'>;
 
@@ -22,6 +26,7 @@ export default function ViewAllScreen() {
   const { data, isLoading, isError, refetch } = useExploreData();
   const route = useRoute<ViewAllRouteProp>();
   const { section } = route.params as { section: StockSectionKey };
+  const navigation = useNavigation();
 
   if (isLoading) {
     return (
@@ -61,7 +66,13 @@ export default function ViewAllScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>{title}</Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <ArrowLeftIcon size={24} color="#000" />
+          {/* <Text> === </Text> */}
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{title}</Text>
+      </View>
       <FlatList
         data={items}
         renderItem={({ item }) => <StockCard stock={item} />}

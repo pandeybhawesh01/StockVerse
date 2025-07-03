@@ -6,7 +6,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
@@ -18,7 +17,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { StockStackParamList } from '../../navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
-import { TextInput } from 'react-native';
 
 type ExploreNavProp = StackNavigationProp<StockStackParamList, 'Explore'>;
 

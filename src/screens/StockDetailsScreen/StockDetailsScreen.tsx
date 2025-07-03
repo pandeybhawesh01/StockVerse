@@ -5,7 +5,6 @@ import {
   View,
   Text,
   ActivityIndicator,
-  StyleSheet,
   Dimensions,
   TouchableOpacity,
   ScrollView,
@@ -20,7 +19,7 @@ import WatchlistModal, {
 } from '../../components/WatchListBottomSheet/WatchListBottomSheet';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
-// import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { ArrowLeftIcon, ChevronLeftIcon } from 'react-native-heroicons/outline';
 
 type RoutePropDetails = RouteProp<StockStackParamList, 'Product'>;
 
@@ -46,7 +45,7 @@ export default function StockDetailsScreen() {
       </SafeAreaView>
     );
   }
-  console.log('data is ',overview.data);
+  console.log('data is ', overview.data);
 
   const daily = series.data['Time Series (Daily)'];
   if (!daily) {
@@ -106,12 +105,11 @@ export default function StockDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.topBar}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          {/* <ChevronLeftIcon size={24} color={'black'} /> */}
-          <Text>back</Text>
+          <ArrowLeftIcon size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.screenTitle}> Stock Details</Text>
+        <Text style={styles.headerTitle}>Stock Detail</Text>
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* —— Header Row —— */}
